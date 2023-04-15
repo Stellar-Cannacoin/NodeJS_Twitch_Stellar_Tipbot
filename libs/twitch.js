@@ -80,11 +80,9 @@ const generateBearer = () => {
 
         axios.post('https://id.twitch.tv/oauth2/token', params)
         .then(({data}) => {
-            console.log(data)
             resolve(data);
         })
         .catch((error) => {
-            console.log(error)
             resolve({
                 access_token: null, 
                 expires_in: new Date(), 
@@ -104,11 +102,9 @@ const generateClientBearer = (access_token) => {
 
         axios.post('https://id.twitch.tv/oauth2/token', params)
         .then(({data}) => {
-            console.log(data)
             resolve(data);
         })
         .catch((error) => {
-            console.log(error)
             resolve({
                 access_token: null, 
                 expires_in: new Date(), 
@@ -185,7 +181,6 @@ const onMessageHandler = async (target, context, msg, self) => {
                 appLogger('log', 'Getting user tip balance')
                 
                 const balanceResponse = await twitchBalanceUser(command)
-                console.log(balanceResponse)
                 client.action(target, balanceResponse);
             break;
 
@@ -193,7 +188,6 @@ const onMessageHandler = async (target, context, msg, self) => {
                 appLogger('log', 'Getting user tip balance')
                 
                 const balancesResponse = await twitchBalancesUser(command)
-                console.log(balancesResponse)
 
                 client.action(target, `💰 Balances:`);
                 for (const key in balancesResponse) {

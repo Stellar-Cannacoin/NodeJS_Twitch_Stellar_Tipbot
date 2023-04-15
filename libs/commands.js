@@ -46,7 +46,7 @@ const twitchWithdrawUser = async (argument) => {
         if (!response) {
             resolve(`Not enough user funds`)
         }
-        
+
         resolve(`Request to withdraw ${argument.amount} ${argument.currency} have been queued`)
     });
 }
@@ -116,12 +116,11 @@ const twitchLeaderboard = async (argument) => {
          * Get tip leaderboard
          */
         let leaderboard = await getLeaderBoard();
-        // console.log(leaderboard)
-        // if (!balances) {
-        //     resolve(`💰 @${argument.user}'s balance: 0 ${argument.currency}`)
-        // }
+        if (!leaderboard) {
+            resolve(`No leaderboard yet.. Take the 1st place 🎖️`)
+        }
+        
         resolve(leaderboard)
-        // resolve(`💰 @${argument.user}'s balance: ${balances} ${argument.currency}`)
     })
 }
 const twitchAirdrop = async (argument) => {
@@ -135,11 +134,8 @@ const twitchAirdrop = async (argument) => {
         for (const key in argument.users) {
             let active_since = moment().diff(moment(argument.users[key].last_seen), 'minutes');
             if (active_since > 10) {
-                //  || key.toLowerCase() == argument.user.toLowerCase()
                 return;
             }
-            console.log(argument.users[key])
-            console.log(key)
             activeUsers.push(key.toLowerCase())
             activeUsersPing.push(` @${key}`)
         }
@@ -147,11 +143,8 @@ const twitchAirdrop = async (argument) => {
         let filteredUsers = activeUsers.filter(user => user.toLowerCase() != argument.user.toLowerCase());
         let filteredUsersPing = activeUsersPing.filter(user => user.toLowerCase() != ` @${argument.user.toLowerCase()}`);
         
-        console.log(filteredUsers)
-        console.log(filteredUsersPing)
-        
         let airdrop = await airdropUsers(argument.user, argument.amount, argument.currency, filteredUsers);
-        console.log(airdrop)
+        
         resolve(`🪂 Airdropped ${(argument.amount/filteredUsers.length)} ${argument.currency} to: ${filteredUsersPing}`)
     })
 }
@@ -202,17 +195,6 @@ const sendCommand = (str, context) => {
     if (user.includes('@')) {
         user = user.split('@')[1];
     }
-
-    console.log({
-        command: command,
-        amount: amount,
-        user: user,
-        sender: context,
-        currency: currency,
-        address: address,
-        transfer: transfer,
-        exchange: exchange
-    })
 
     return {
         command: command,
