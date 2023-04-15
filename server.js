@@ -44,10 +44,10 @@ server.transactions()
                 asset = "XLM";
             }
 
-            let verifiedMemo = await verifyMemo(memo);
-            if (!verifiedMemo) {
-                return;
-            }
+            // let verifiedMemo = await verifyMemo(memo);
+            // if (!verifiedMemo) {
+            //     return;
+            // }
 
             appLogger('log', `Deposit with valid user/memo. Memo: ${memo}`)
 
