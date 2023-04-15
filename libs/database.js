@@ -117,9 +117,6 @@ const depositFunds = (username, hash, amount, asset) => {
         const collectionT = db.collection('transactions');
         const verified = await verifyTransaction(hash);
 
-        console.log("Verifying? "+verified)
-        console.log("Amount: "+amount)
-
         let balanceCurrency = `balances.${asset}`
 
         if (verified) {
