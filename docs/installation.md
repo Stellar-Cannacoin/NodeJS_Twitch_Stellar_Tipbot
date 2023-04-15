@@ -48,7 +48,7 @@ CLIENT_APP_SECRET=""
 }
 ```
 6. Make sure your MongoDB database is up and running. Update the `DATABASE_URL` variable in the `.env` file with the connection URI for your MongoDB database.
-7. Start the tipbot server: ```npm start ``` or ```node server.js ```
+7. Start the tipbot server: ```npm start``` or ```node server.js```
 
 Congratulations! You have successfully installed the Twitch Stellar Tipbot on your server. The bot is now ready to accept tips in the allowed tokens on the Twitch channel specified in the `.env` file.
 
