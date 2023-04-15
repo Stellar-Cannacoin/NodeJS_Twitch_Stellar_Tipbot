@@ -32,6 +32,7 @@ server.transactions()
         if (memo_type != "text") {
             return;
         }
+        appLogger('log', `Found memo: ${memo}`)
         server.operations()
         .forTransaction(hash)
         .call()
@@ -50,7 +51,7 @@ server.transactions()
             appLogger('log', `Deposit with valid user/memo. Memo: ${memo}`)
 
             if (source_account == process.env.WALLET_ADDRESS) {
-                return
+                returnM
             }
             depositFunds(memo, hash, amount, asset_code)
         })
