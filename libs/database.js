@@ -123,7 +123,7 @@ const depositFunds = (username, hash, amount, asset) => {
         let balanceCurrency = `balances.${asset}`
 
         if (verified) {
-            const deposit = await collection.updateOne({username: username.toLowerCase()}, { $inc: {[balanceCurrency]: parseFloat(amount)} })
+            const deposit = await collection.updateOne({username: username.toLowerCase()}, { $inc: {[balanceCurrency]: parseFloat(amount)}}, {upsert: true})
             
             if (deposit.modifiedCount == 0) {
                 return resolve(false)
