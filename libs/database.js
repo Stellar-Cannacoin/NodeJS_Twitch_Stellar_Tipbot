@@ -1,6 +1,7 @@
 const { MongoClient } = require('mongodb');
 const { appLogger } = require('./logger');
 const { withdrawToWallet } = require('./stellar');
+const { usertokens } = require('./tokens');
 
 const client = new MongoClient(process.env.DATABASE_URL);
 const db = client.db(process.env.DATABASE_NAME);
@@ -136,7 +137,7 @@ const depositFunds = (username, hash, amount, asset) => {
 const createUser = (username) => {
     return new Promise(async (resolve, reject) => {
         const collection = db.collection('users');
-        const user = await collection.insertOne({username: username, balances: { XLM: 0 }, total_tips: 0})
+        await collection.insertOne({ username: username, balances: [usertokens], total_tips: 0 })
         return resolve(true)
     })
 }
