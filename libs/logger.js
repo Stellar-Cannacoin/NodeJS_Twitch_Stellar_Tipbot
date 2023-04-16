@@ -2,15 +2,15 @@ const appLogger = (type, message) => {
     let appName = "[TwitchTipBot]"
     switch(type) {
         case "err":
-            console.log(`[${new Date().getHours()}:${new Date().getMinutes()}] error: ${message}`)
+            console.log(`[${new Date().getHours()}:${new Date().getMinutes()}] error: ${JSON.stringify(message)}`)
         break
 
         case "log":
-            console.log(`[${new Date().getHours()}:${new Date().getMinutes()}] info: ${message}`)
+            console.log(`[${new Date().getHours()}:${new Date().getMinutes()}] info: ${JSON.stringify(message)}`)
         break;
 
         case "warn":
-            console.log(`[${new Date().getHours()}:${new Date().getMinutes()}] warn: ${message}`)
+            console.log(`[${new Date().getHours()}:${new Date().getMinutes()}] warn: ${JSON.stringify(message)}`)
         break;
 
         default:
