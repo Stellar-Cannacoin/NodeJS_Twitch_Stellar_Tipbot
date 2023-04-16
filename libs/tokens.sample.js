@@ -9,4 +9,9 @@ const tokens = {
     }
 }
 
-module.exports = { tokens }
+const usertokens =  {
+    XLM: 0,
+    UDC: 0,
+}
+
+module.exports = { tokens, usertokens }
