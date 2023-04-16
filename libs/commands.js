@@ -24,7 +24,7 @@ const twitchDepositUser = async (argument) => {
         /**
          * Run database function to fetch users memo and return deposit address
          */
-        let verifiedMemo = await verifyMemo(memo);
+        let verifiedMemo = await verifyMemo(argument.user);
         if (!verifiedMemo) {
             createUser(argument.user)
         }
