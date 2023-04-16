@@ -137,7 +137,7 @@ const depositFunds = (username, hash, amount, asset) => {
 const createUser = (username) => {
     return new Promise(async (resolve, reject) => {
         const collection = db.collection('users');
-        await collection.insertOne({ username: username, balances: [usertokens], total_tips: 0 })
+        await collection.insertOne({ username: username, balances: usertokens, total_tips: 0 })
         return resolve(true)
     })
 }
