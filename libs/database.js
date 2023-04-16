@@ -133,7 +133,13 @@ const depositFunds = (username, hash, amount, asset) => {
         return resolve(false)
     })
 }
-
+const createUser = (username) => {
+    return new Promise(async (resolve, reject) => {
+        const collection = db.collection('users');
+        const user = await collection.insertOne({username: username, balances: { XLM: 0 }, total_tips: 0})
+        return resolve(true)
+    })
+}
 const verifyTransaction = (hash) => {
     return new Promise(async (resolve, reject) => {
         const collection = db.collection('transactions');
@@ -166,4 +172,14 @@ main().catch(error => {
     appLogger('error', error)
 })
 
-module.exports = { tipUser, airdropUsers, getLeaderBoard, getUserBalance, getUserBalances, withdrawFunds, depositFunds, verifyMemo }
+module.exports = { 
+    tipUser, 
+    airdropUsers, 
+    getLeaderBoard, 
+    getUserBalance, 
+    getUserBalances, 
+    withdrawFunds, 
+    depositFunds, 
+    verifyMemo, 
+    createUser
+}

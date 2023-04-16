@@ -43,11 +43,15 @@ server.transactions()
             if (asset_type == "native") {
                 asset = "XLM";
             }
-
-            // let verifiedMemo = await verifyMemo(memo);
-            // if (!verifiedMemo) {
-            //     return;
-            // }
+            /**
+             * OPTIONAL: You can check if the user exists before validating funds
+             * 
+             *  let verifiedMemo = await verifyMemo(memo);
+             *  if (!verifiedMemo) {
+             *      return;
+             *  }
+             */
+            
 
             appLogger('log', `Deposit with valid user/memo. Memo: ${memo}`)
 

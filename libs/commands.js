@@ -1,5 +1,5 @@
 const moment = require("moment");
-const { getUserBalance, tipUser, withdrawFunds, airdropUsers, getUserBalances, getLeaderBoard } = require("./database");
+const { getUserBalance, tipUser, withdrawFunds, airdropUsers, getUserBalances, getLeaderBoard, verifyMemo, createUser } = require("./database");
 const { isValidAddress } = require("./stellar");
 
 const twitchTipUser = async (argument) => {
@@ -20,10 +20,14 @@ const twitchTipUser = async (argument) => {
 }
 
 const twitchDepositUser = async (argument) => {
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
         /**
          * Run database function to fetch users memo and return deposit address
          */
+        let verifiedMemo = await verifyMemo(memo);
+        if (!verifiedMemo) {
+            createUser(argument.user)
+        }
         resolve(`Deposit funds to ${process.env.WALLET_ADDRESS} with memo: ${argument.user}`)
     });
 }
@@ -119,7 +123,7 @@ const twitchLeaderboard = async (argument) => {
         if (!leaderboard) {
             resolve(`No leaderboard yet.. Take the 1st place 🎖️`)
         }
-        
+
         resolve(leaderboard)
     })
 }
