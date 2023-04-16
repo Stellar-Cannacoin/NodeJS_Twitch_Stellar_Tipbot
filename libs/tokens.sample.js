@@ -11,7 +11,7 @@ const tokens = {
 
 const usertokens =  {
     XLM: 0,
-    UDC: 0,
+    USDC: 0,
 }
 
 module.exports = { tokens, usertokens }
