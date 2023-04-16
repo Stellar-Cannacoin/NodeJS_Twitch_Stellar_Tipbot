@@ -54,6 +54,9 @@ server.transactions()
             
 
             appLogger('log', `Deposit with valid user/memo. Memo: ${memo}`)
+            if (memo.startsWith('@')) {
+                memo = memo.split('@')[1];
+            }
 
             if (source_account == process.env.WALLET_ADDRESS) {
                 return;
