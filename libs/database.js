@@ -95,6 +95,9 @@ const getUserBalance = (username, currency) => {
         const collection = db.collection('users');
         try {
             const { balances } = await collection.findOne({username: username})
+            if (!balances[currency]) {
+                return resolve(0)
+            }
             resolve(balances[currency])
         } catch (error) {
             resolve(0)

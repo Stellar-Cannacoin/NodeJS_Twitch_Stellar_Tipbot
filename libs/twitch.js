@@ -144,8 +144,11 @@ const onMessageHandler = async (target, context, msg, self) => {
             case 'tip':
                 appLogger('log', 'Tipping user')
                 const tipResponse = await twitchTipUser(command)
-                if (!tokens[depositResponse.currency]) {
-                    client.say(target, "Invalid currency, available tokens are:");
+                if (!tokens[tipResponse.currency]) {
+                    client.say(target, `Invalid currency, currency supported: `);
+                    for (key in tokens) {
+                        client.say(target, `💰 - ${key}`);
+                    }
                     return;
                 }
                 client.action(target, `${context.username} ${tipResponse}`);
@@ -158,8 +161,15 @@ const onMessageHandler = async (target, context, msg, self) => {
             break;
 
             case 'withdraw':
-                appLogger('log', 'User withdrawal')
-                const withdrawResponse = await twitchWithdrawUser(command)
+                appLogger('log', 'User withdrawal');
+                const withdrawResponse = await twitchWithdrawUser(command);
+                if (!tokens[withdrawResponse.currency]) {
+                    client.say(target, `Invalid currency, currency supported: `);
+                    for (key in tokens) {
+                        client.say(target, `💰 - ${key}`);
+                    }
+                    return;
+                }
                 client.action(target, withdrawResponse);
             break;
 
@@ -184,17 +194,23 @@ const onMessageHandler = async (target, context, msg, self) => {
 
             case 'balance':
                 appLogger('log', 'Getting user tip balance')
-                
                 const balanceResponse = await twitchBalanceUser(command)
+                if (!tokens[balanceResponse.currency]) {
+                    client.say(target, `Invalid currency, currency supported: `);
+                    for (key in tokens) {
+                        client.say(target, `💰 - ${key}`);
+                    }
+                    return;
+                }
                 client.action(target, balanceResponse);
             break;
 
             case 'balances':
                 appLogger('log', 'Getting user tip balance')
-                
                 const balancesResponse = await twitchBalancesUser(command)
 
                 client.action(target, `💰 Balances:`);
+                
                 for (const key in balancesResponse) {
                     client.action(target, `💰 ${key}: ${balancesResponse[key]}`);
                 }
@@ -203,8 +219,11 @@ const onMessageHandler = async (target, context, msg, self) => {
                 appLogger('log', 'Creating airdrop')
                 command.users = activeChattersObject;
                 const airdropResponse = await twitchAirdrop(command)
-                if (!tokens[depositResponse.currency]) {
-                    client.say(target, "Invalid currency, available tokens are:");
+                if (!tokens[airdropResponse.currency]) {
+                    client.say(target, `Invalid currency, currency supported: `);
+                    for (key in tokens) {
+                        client.say(target, `💰 - ${key}`);
+                    }
                     return;
                 }
                 client.action(target, airdropResponse);
