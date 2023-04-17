@@ -3,6 +3,7 @@ const axios = require('axios')
 const tmi = require('tmi.js');
 const { commands, sendCommand, twitchTipUser, twitchDepositUser, twitchWithdrawUser, twitchBalanceUser, twitchHelpUser, twitchTranferUserFunds, twitchAirdrop, twitchBalancesUser, twitchLeaderboard } = require('./commands');
 const { appLogger } = require('./logger');
+const { tokens } = require('./tokens');
 
 let activeChattersObject = {};
 
@@ -143,6 +144,10 @@ const onMessageHandler = async (target, context, msg, self) => {
             case 'tip':
                 appLogger('log', 'Tipping user')
                 const tipResponse = await twitchTipUser(command)
+                if (!tokens[depositResponse.currency]) {
+                    client.say(target, "Invalid currency, available tokens are:");
+                    return;
+                }
                 client.action(target, `${context.username} ${tipResponse}`);
             break;
 
@@ -198,6 +203,10 @@ const onMessageHandler = async (target, context, msg, self) => {
                 appLogger('log', 'Creating airdrop')
                 command.users = activeChattersObject;
                 const airdropResponse = await twitchAirdrop(command)
+                if (!tokens[depositResponse.currency]) {
+                    client.say(target, "Invalid currency, available tokens are:");
+                    return;
+                }
                 client.action(target, airdropResponse);
             break;
 
