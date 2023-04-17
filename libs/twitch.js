@@ -1,8 +1,10 @@
 const axios = require('axios')
 
 const tmi = require('tmi.js');
+const { broadcastMessages, initalizeCronjob } = require('./broadcaster');
 const { commands, sendCommand, twitchTipUser, twitchDepositUser, twitchWithdrawUser, twitchBalanceUser, twitchHelpUser, twitchTranferUserFunds, twitchAirdrop, twitchBalancesUser, twitchLeaderboard } = require('./commands');
 const { appLogger } = require('./logger');
+const { validateAsset } = require('./stellar');
 const { tokens } = require('./tokens');
 
 let activeChattersObject = {};
@@ -34,6 +36,8 @@ const client = new tmi.client(opts);
 
 const connectToServer = () => {
     return new Promise(async (resolve, reject) => {
+
+        
         
         /**
          * TODO: Write better unit tests
@@ -58,10 +62,18 @@ const connectToServer = () => {
 
         client.on('message', onMessageHandler);
         client.on('connected', onConnectedHandler);
+
+        
+
         client.connect()
         .then(data => {
-            client.action(process.env.TWITCH_CHANNELS, `🤖 ${process.env.BOT_WELCOME_MESSAGE}`);
-            client.action(process.env.TWITCH_CHANNELS, '🤖 Type: !tiphelp to show the user guide.');
+            // broadcastMessages(client, process.env.TWITCH_CHANNELS, 3, process.env.CRON_ENABLED)
+            initalizeCronjob(client, process.env.TWITCH_CHANNELS, 2, process.env.CRON_ENABLED, process.env.CRON_TIME);
+            // client.color("#53d769")
+            // client.whisper("burnsivxx", "HELLO")
+            // client.commercial(process.env.TWITCH_CHANNELS, 100)
+            // client.action(process.env.TWITCH_CHANNELS, `🤖 ${process.env.BOT_WELCOME_MESSAGE}`);
+            // client.action(process.env.TWITCH_CHANNELS, '🤖 Type: !tiphelp to show the user guide.');
             resolve(true)
         })
         .catch(error => {
@@ -93,38 +105,6 @@ const generateBearer = () => {
     })
 }
 
-const generateClientBearer = (access_token) => {
-    return new Promise((resolve, reject) => {
-        const params = new URLSearchParams();
-        params.append('client_id', process.env.CLIENT_APP_ID);
-        params.append('client_secret', process.env.CLIENT_APP_SECRET);
-        params.append('grant_type', 'client_credentials')
-        params.append('scope', 'user_read chat_login chat:edit chat:read')
-
-        axios.post('https://id.twitch.tv/oauth2/token', params)
-        .then(({data}) => {
-            resolve(data);
-        })
-        .catch((error) => {
-            resolve({
-                access_token: null, 
-                expires_in: new Date(), 
-                token_type: 'bearer'
-            })
-        })
-    })
-}
-
-const bearerExpiry = (totalSeconds) => {
-    const totalMinutes = Math.floor(totalSeconds / 60);
-  
-    const seconds = totalSeconds % 60;
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
-  
-    return { h: hours, m: minutes, s: seconds };
-}
-
 const onMessageHandler = async (target, context, msg, self) => {
     if (self) { return; } 
 
@@ -139,119 +119,99 @@ const onMessageHandler = async (target, context, msg, self) => {
 
     const command = sendCommand(commandName, context.username);
 
-    try {
-        switch (command.command) {
-            case 'tip':
-                appLogger('log', 'Tipping user')
-                const tipResponse = await twitchTipUser(command)
-                if (!tokens[tipResponse.currency]) {
-                    client.say(target, `Invalid currency, currency supported: `);
-                    for (key in tokens) {
-                        client.say(target, `💰 - ${key}`);
-                    }
+    switch (command.command) {
+        case 'tip':
+            appLogger('log', 'Tipping user')
+            if (!validateAsset(client, command, target)) {
+                return;
+            }
+            const tipResponse = await twitchTipUser(command)
+            client.action(target, `${context.username} ${tipResponse}`);
+        break;
+
+        case 'deposit':
+            appLogger('log', 'User wants to deposit')
+            const depositResponse = await twitchDepositUser(command)
+            client.say(target, depositResponse);
+        break;
+
+        case 'withdraw':
+            appLogger('log', 'User withdrawal');
+            if (!validateAsset(client, command, target)) {
+                return;
+            }
+            const withdrawResponse = await twitchWithdrawUser(command);
+            client.action(target, withdrawResponse);
+        break;
+
+        case 'transfer_dep':
+            appLogger('log', 'User withdrawal')
+            const transferResponse = await twitchTranferUserFunds(command)
+            client.action(target, transferResponse);
+        break;
+
+        case 'leaderboard':
+            appLogger('log', 'Getting tip leaderboard')
+            const leaderboardResponse = await twitchLeaderboard(command);
+
+            leaderboardResponse.map((user, place) => {
+                if (!user.total_tips || user.total_tips <= 0) {
                     return;
                 }
-                client.action(target, `${context.username} ${tipResponse}`);
-            break;
+                place++;
+                client.say(target, `🎖️ ${place}. ${user.username} - ${user.total_tips}`);
+            })
+        break;
 
-            case 'deposit':
-                appLogger('log', 'User wants to deposit')
-                const depositResponse = await twitchDepositUser(command)
-                client.say(target, depositResponse);
-            break;
+        case 'balance':
+            appLogger('log', 'Getting user tip balance')
+            if (!validateAsset(client, command, target)) {
+                return;
+            }
+            const balanceResponse = await twitchBalanceUser(command)
+            client.action(target, balanceResponse);
+        break;
 
-            case 'withdraw':
-                appLogger('log', 'User withdrawal');
-                const withdrawResponse = await twitchWithdrawUser(command);
-                if (!tokens[withdrawResponse.currency]) {
-                    client.say(target, `Invalid currency, currency supported: `);
-                    for (key in tokens) {
-                        client.say(target, `💰 - ${key}`);
-                    }
-                    return;
-                }
-                client.action(target, withdrawResponse);
-            break;
+        case 'balances':
+            appLogger('log', 'Getting user tip balance')
+            const balancesResponse = await twitchBalancesUser(command)
 
-            case 'transfer_dep':
-                appLogger('log', 'User withdrawal')
-                const transferResponse = await twitchTranferUserFunds(command)
-                client.action(target, transferResponse);
-            break;
-
-            case 'leaderboard':
-                appLogger('log', 'Getting tip leaderboard')
-                const leaderboardResponse = await twitchLeaderboard(command);
-
-                leaderboardResponse.map((user, place) => {
-                    if (!user.total_tips || user.total_tips <= 0) {
-                        return;
-                    }
-                    place++;
-                    client.say(target, `🎖️ ${place}. ${user.username} - ${user.total_tips}`);
-                })
-            break;
-
-            case 'balance':
-                appLogger('log', 'Getting user tip balance')
-                const balanceResponse = await twitchBalanceUser(command)
-                if (!tokens[balanceResponse.currency]) {
-                    client.say(target, `Invalid currency, currency supported: `);
-                    for (key in tokens) {
-                        client.say(target, `💰 - ${key}`);
-                    }
-                    return;
-                }
-                client.action(target, balanceResponse);
-            break;
-
-            case 'balances':
-                appLogger('log', 'Getting user tip balance')
-                const balancesResponse = await twitchBalancesUser(command)
-
-                client.action(target, `💰 Balances:`);
-                
-                for (const key in balancesResponse) {
-                    client.action(target, `💰 ${key}: ${balancesResponse[key]}`);
-                }
-            break;
-            case 'airdrop':
-                appLogger('log', 'Creating airdrop')
-                command.users = activeChattersObject;
-                const airdropResponse = await twitchAirdrop(command)
-                if (!tokens[airdropResponse.currency]) {
-                    client.say(target, `Invalid currency, currency supported: `);
-                    for (key in tokens) {
-                        client.say(target, `💰 - ${key}`);
-                    }
-                    return;
-                }
-                client.action(target, airdropResponse);
-            break;
-
-            case 'tiphelp':
-                appLogger('log', 'Showing user guide')
-
-                client.action(target, '🤖 Available commands 🤖');
-                client.action(target, '👉 !tip [@username] [amount] [CURRENCY]');
-                client.action(target, '👉 !airdrop [amount] [CURRENCY]');
-                client.action(target, '👉 !balances');
-                client.action(target, '👉 !balance [CURRENCY]');
-                client.action(target, '👉 !deposit');
-                // client.action(target, '👉 !transfer |amount[ [CURRENCY] tip.cc [memo]');
-                client.action(target, '👉 !withdraw [amount] [CURRENCY] [address]');
-                client.action(target, '👉 !tiphelp (this)');
-            break;
+            client.action(target, `💰 Balances:`);
             
+            for (const key in balancesResponse) {
+                client.action(target, `💰 ${key}: ${balancesResponse[key]}`);
+            }
+        break;
+        case 'airdrop':
+            appLogger('log', 'Creating airdrop')
+            if (!validateAsset(client, command, target)) {
+                return;
+            }
+            command.users = activeChattersObject;
+            const airdropResponse = await twitchAirdrop(command)
+            client.action(target, airdropResponse);
+        break;
 
-            default:
-                appLogger('log', 'Invalid command')
-                const clientResponse = 'Unsupported command';
-                client.say(target, clientResponse);
-            break;
-        }
-    } catch (error) {
-        appLogger('error', error)
+        case 'tiphelp':
+            appLogger('log', 'Showing user guide')
+
+            client.action(target, '🤖 Available commands 🤖');
+            client.action(target, '👉 !tip [@username] [amount] [CURRENCY]');
+            client.action(target, '👉 !airdrop [amount] [CURRENCY]');
+            client.action(target, '👉 !balances');
+            client.action(target, '👉 !balance [CURRENCY]');
+            client.action(target, '👉 !deposit');
+            // client.action(target, '👉 !transfer |amount[ [CURRENCY] tip.cc [memo]');
+            client.action(target, '👉 !withdraw [amount] [CURRENCY] [address]');
+            client.action(target, '👉 !tiphelp (this)');
+        break;
+        
+
+        default:
+            appLogger('log', 'Invalid command')
+            const clientResponse = 'Unsupported command';
+            client.say(target, clientResponse);
+        break;
     }
 }
 

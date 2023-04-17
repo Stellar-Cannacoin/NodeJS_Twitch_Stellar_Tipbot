@@ -99,4 +99,20 @@ const isValidAddress = (address) => {
     return false;
 }
 
-module.exports = { withdrawToWallet, isValidAddress };
+const validateAsset = (client, command, target) => {
+    // let currency = command.currency;
+    console.log(JSON.stringify(command))
+    // console.log("CURRENCY: "+currency)
+    // let token = currency.toUpperCase();
+    // console.log("TOKEN: "+token)
+    if (!tokens[command.currency]) {
+        client.say(target, `Invalid currency, currency supported: `);
+        for (key in tokens) {
+            client.say(target, `💰 - ${key}`);
+        }
+        return false;
+    }
+    return true;
+}
+
+module.exports = { withdrawToWallet, isValidAddress, validateAsset };

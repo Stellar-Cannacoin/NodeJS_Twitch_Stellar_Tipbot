@@ -6,7 +6,7 @@ const appLogger = (type, message) => {
         break
 
         case "log":
-            console.log(`[${new Date().getHours()}:${new Date().getMinutes()}] info: ${JSON.stringify(message)}`)
+            console.log(`[${new Date().getHours()}:${new Date().getMinutes()}] info: ${message}`)
         break;
 
         case "warn":

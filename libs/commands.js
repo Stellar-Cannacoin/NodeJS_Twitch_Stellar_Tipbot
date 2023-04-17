@@ -190,6 +190,16 @@ const sendCommand = (str, context) => {
     let transfer = Array.from(str.matchAll(regexTransfer), m => m[0])[5];
     let exchange = Array.from(str.matchAll(regexExchange), m => m[0])[0];
 
+    /** Add supports for lowercase tokens ex. xlm/XLM */
+    if (command == "balance") {
+        currency = Array.from(str.matchAll(/[A-Za-z]+/g), m => m[0])[1].toUpperCase();
+    }
+
+    /** Add supports for lowercase tokens ex. xlm/XLM */
+    if (command == "tip") {
+        currency = Array.from(str.matchAll(/[A-Za-z]+/g), m => m[0])[2].toUpperCase();
+    }
+
     if (!user) {
         // if (command == "withdraw") {
         //     user = context;

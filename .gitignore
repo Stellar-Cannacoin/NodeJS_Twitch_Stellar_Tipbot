@@ -1,3 +1,4 @@
 .env
+/content/ads.js
 /node_modules
 libs/tokens.js
