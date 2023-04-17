@@ -1,3 +1,8 @@
+/**
+ * logger.js
+ * Simple app logger
+ */
+
 const appLogger = (type, message) => {
     let appName = "[TwitchTipBot]"
     switch(type) {

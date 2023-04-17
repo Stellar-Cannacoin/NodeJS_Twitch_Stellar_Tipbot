@@ -1,3 +1,8 @@
+/**
+ * database.js
+ * Handles all database related actions for the tipbot
+ */
+
 const { MongoClient } = require('mongodb');
 const { appLogger } = require('./logger');
 const { withdrawToWallet } = require('./stellar');

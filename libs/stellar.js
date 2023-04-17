@@ -1,3 +1,9 @@
+/**
+ * stellar.js
+ * Handles all Stellar Blockchain transactions &
+ * check-in methods, likev verify tx hash
+ */
+
 const { tokens } = require('./tokens');
 const { Keypair, TimeoutInfinite, StrKey } = require('stellar-base');
 const stellar = require('stellar-sdk');

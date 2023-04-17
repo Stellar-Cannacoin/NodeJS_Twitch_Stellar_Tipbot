@@ -1,3 +1,8 @@
+/**
+ * server.js
+ * Bot app server to run entire thing
+ */
+
 require('dotenv').config()
 
 /** Locally provided libraries */

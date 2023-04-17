@@ -1,5 +1,9 @@
-const axios = require('axios')
+/**
+ * twitch.js
+ * Handles all Twitch API interactions
+ */
 
+const axios = require('axios')
 const tmi = require('tmi.js');
 const { broadcastMessages, initalizeCronjob } = require('./broadcaster');
 const { commands, sendCommand, twitchTipUser, twitchDepositUser, twitchWithdrawUser, twitchBalanceUser, twitchHelpUser, twitchTranferUserFunds, twitchAirdrop, twitchBalancesUser, twitchLeaderboard } = require('./commands');

@@ -1,3 +1,9 @@
+/**
+ * commands.js
+ * Handles all Twitch commands based on user chat input
+ * @sendCommand => return commands and params based on RegEx
+ */
+
 const moment = require("moment");
 const { getUserBalance, tipUser, withdrawFunds, airdropUsers, getUserBalances, getLeaderBoard, verifyMemo, createUser } = require("./database");
 const { isValidAddress } = require("./stellar");
@@ -18,7 +24,6 @@ const twitchTipUser = async (argument) => {
         resolve(`💚 Tipped @${argument.user} - ${argument.amount} ${argument.currency}`)
     });
 }
-
 const twitchDepositUser = async (argument) => {
     return new Promise(async (resolve) => {
         /**
@@ -31,7 +36,6 @@ const twitchDepositUser = async (argument) => {
         resolve(`Deposit funds to ${process.env.WALLET_ADDRESS} with memo: ${argument.user}`)
     });
 }
-
 const twitchWithdrawUser = async (argument) => {
     return new Promise(async (resolve) => {
         /**
@@ -54,7 +58,6 @@ const twitchWithdrawUser = async (argument) => {
         resolve(`Request to withdraw ${argument.amount} ${argument.currency} have been queued`)
     });
 }
-
 const twitchTranferUserFunds = async (argument) => {
     return new Promise(async (resolve) => {
         /**
@@ -167,14 +170,11 @@ const twitchHelpUser = async (argument) => {
 }
 
 const sendCommand = (str, context) => {
+    /** Original regex to match entire query, to what you want with this */
     let regex = /![A-Za-z0-9]+\s@[A-Za-z0-9]+\s[0-9]+\s[A-Za-z]+/g;
 
-    // let regexCommand = /![A-Za-z0-9]+\s/g;
     let regexCommand = /[A-Za-z0-9]+/g;
-    // let regexUser = /[A-Za-z0-9/\-/\_]+/g;
     let regexUser = /@[A-Za-z0-9_]+/g;
-    // +_[A-Za-z0-9]
-    // let regexAmount = /[0-9]+/g;
     let regexAmount = /[0-9.]+\s/g;
     let regexCurrency = /[A-Z]+/g
     let regexAddress = /[A-Za-z0-9]+/g;
@@ -201,9 +201,6 @@ const sendCommand = (str, context) => {
     }
 
     if (!user) {
-        // if (command == "withdraw") {
-        //     user = context;
-        // }
         user = context;
     } 
     if (user.includes('@')) {
